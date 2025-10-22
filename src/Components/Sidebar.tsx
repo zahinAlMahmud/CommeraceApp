@@ -21,7 +21,7 @@ const Sidebar = () => {
     setMinPrice,
     maxPrice,
     setMaxPrice,
-    keyword,
+    // keyword,
     setKeyword,
   } = useFilter();
   const [categories, setCategories] = useState<string[]>([]);
@@ -76,8 +76,8 @@ const Sidebar = () => {
     
     setSearchQuery("");
     setSelectedCategory("");
-    setMinPrice("");
-    setMaxPrice("");
+    setMinPrice(undefined);
+    setMaxPrice(undefined);
     setKeyword("");
   }
 
