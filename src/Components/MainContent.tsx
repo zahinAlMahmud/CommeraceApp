@@ -9,91 +9,78 @@ const MainContent = () => {
 
   const [products, setProducts] = useState<any[]>([]);
   const [filter, setFilter] = useState("all");
-  const [currentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const itemsPerPage = 12;
 
+  // ✅ Fetch products whenever page or keyword changes
   useEffect(() => {
     let url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${(currentPage - 1) * itemsPerPage}`;
 
-    if (keyword) {
+    if (keyword && keyword.trim() !== "") {
       url = `https://dummyjson.com/products/search?q=${keyword}`;
     }
 
     axios
       .get(url)
       .then((response) => {
+        console.log("Fetched products:", response.data.products);
         setProducts(response.data.products);
-       
       })
       .catch((error) => {
         console.error("Error fetching data", error);
       });
   }, [currentPage, keyword]);
 
+  // ✅ Filter logic
+  const getFilteredProducts = () => {
+    let filteredProducts = [...products];
 
-  const getFilterProducts =()=>{
-
-    let filteredProducts = products;
-
-    if(selectedCategory){
-        filteredProducts = filteredProducts.filter(
-
-            (product)=>product.category === selectedCategory
-        );
-
-        console.log(getFilterProducts)
+    if (selectedCategory && selectedCategory.trim() !== "") {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.category === selectedCategory
+      );
     }
-    if(minPrice !== undefined){
 
-        filteredProducts = filteredProducts.filter(product => product.price >= minPrice)
+    if (minPrice !== undefined && !isNaN(minPrice)) {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.price >= minPrice
+      );
+    }
 
-      }
-      if(maxPrice !== undefined){
+    if (maxPrice !== undefined && !isNaN(maxPrice)) {
+      filteredProducts = filteredProducts.filter(
+        (product) => product.price <= maxPrice
+      );
+    }
 
-        filteredProducts = filteredProducts.filter(product => product.price <= maxPrice)
+    if (searchQuery && searchQuery.trim() !== "") {
+      filteredProducts = filteredProducts.filter((product) =>
+        product.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-      }
-
-      if(searchQuery){
-        filteredProducts = filteredProducts.filter(product => product.title.toLowerCase().includes(searchQuery.toLowerCase()))
-      }
-
-      switch(filter){
-        case 'expensive':
-            return filteredProducts.sort((a , b)=> b.price -a.price)
-        
-        case 'cheap':
-            return filteredProducts.sort((a,b)=> a.price - b.price)
-        
-        case 'popular':
-            return filteredProducts.sort((a,b)=> b.rating - a.rating)
-            default:
-              return filteredProducts;
-
-      }
-    
+    switch (filter) {
+      case "expensive":
+        return filteredProducts.sort((a, b) => b.price - a.price);
+      case "cheap":
+        return filteredProducts.sort((a, b) => a.price - b.price);
+      case "popular":
+        return filteredProducts.sort((a, b) => b.rating - a.rating);
+      default:
+        return filteredProducts;
+    }
   };
 
- 
+  const filteredProducts = getFilteredProducts();
 
- const filteredProducts =  getFilterProducts();
-
-console.log(filteredProducts);
-
-
-
-
-
-
-
-
-
+  console.log("Filtered products:", filteredProducts);
 
   return (
     <section className="xl:w-[55rem] lg:w-[55rem] sm:w-[40rem] xs:w-[20rem] p-5">
       <div className="mb-5">
         <div className="flex flex-col sm:flex-row justify-between items-center">
+          {/* Filter Dropdown */}
           <div className="relative mb-5 mt-5">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -138,18 +125,23 @@ console.log(filteredProducts);
             )}
           </div>
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 gap-5">
 
-            {filteredProducts.map(products=>(
-                <BookCard 
-                key={products.id}
-                id = {products.id}
-                title={products.title}
-                image={products.thumbnail}
-                price ={products.price}
-                />
+        {/* ✅ Product Grid */}
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+            {filteredProducts.map((product) => (
+              <BookCard
+                key={product.id}
+                id={product.id}
+                title={product.title}
+                image={product.thumbnail}
+                price={product.price}
+              />
             ))}
-        </div>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500 mt-10">No products found</p>
+        )}
       </div>
     </section>
   );
