@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useFilter } from "./FilterContext";
+import { useFilter } from "./FilterContext"; 
 import { Tally3 } from "lucide-react";
+
 import axios from "axios";
 import BookCard from "./BookCard";
 
@@ -9,7 +10,7 @@ const MainContent = () => {
 
   const [products, setProducts] = useState<any[]>([]);
   const [filter, setFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage] = useState(1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const itemsPerPage = 12;
 
